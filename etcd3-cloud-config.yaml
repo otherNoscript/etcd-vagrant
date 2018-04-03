@@ -1,0 +1,21 @@
+#cloud-config
+
+coreos:
+  update:
+    reboot-strategy: "off"
+
+  units:
+
+  - name: etcd-member.service
+    enable: true
+    command: start
+    drop-ins:
+      - name: 40-etcd-cluster.conf
+        content: |
+          [Service]
+          Environment="ETCD_NAME={{ETCD_NODE_NAME}}"
+          Environment="ETCD_ADVERTISE_CLIENT_URLS=https://$private_ipv4:2379"
+          Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://$private_ipv4:2380"
+          Environment="ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379"
+          Environment="ETCD_LISTEN_PEER_URLS=https://$private_ipv4:2380"
+          Environment="ETCD_INITIAL_CLUSTER={{ETCD_INITIAL_CLUSTER}}"
